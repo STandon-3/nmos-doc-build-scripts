@@ -3,7 +3,7 @@
 build: source-repo docs indexes fix-links layouts
 
 source-repo:
-	.scripts/get-source-repo.sh
+	.scripts/get_source_repo.py
 
 docs:
 	.scripts/extract-docs.sh
