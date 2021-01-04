@@ -18,8 +18,10 @@ from git import Repo
 import os
 import re
 
-import common
-import render
+from common import get_config, SRC_DIR
+from render_docs import render_docs
+from render_apis import render_apis
+from render_examples import render_examples
 
 
 def extract_tree(repo, dir, checkout):
@@ -28,16 +30,18 @@ def extract_tree(repo, dir, checkout):
     if not os.path.isdir(dir):
         os.mkdir(dir)
     repo.git.checkout(checkout)
-    render.render_docs(dir)
-    render.render_apis(dir)
-    render.render_examples(dir)
+    tree = dir + '/' + checkout.name
+    os.mkdir(tree)
+    render_docs(tree)
+    render_apis(tree)
+    render_examples(tree)
 
 
-spec_config = common.spec_config()
-repo = Repo(common.SRC_DIR)
+config = get_config()
+repo = Repo(SRC_DIR)
 
-for branch in tuple(_ for _ in repo.branches if re.match(spec_config['show_branches'], _.name)):
+for branch in tuple(_ for _ in repo.branches if re.match(config['show_branches'], _.name)):
     extract_tree(repo, "branches", branch)
 
-for tag in tuple(_ for _ in repo.tags if re.match(spec_config['show_tags'], _.name)):
+for tag in tuple(_ for _ in repo.tags if re.match(config['show_tags'], _.name)):
     extract_tree(repo, "tags", tag)
