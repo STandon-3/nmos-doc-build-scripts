@@ -26,6 +26,13 @@ if [[ "$AMWA_ID" =~ "IS-" && ! -d node_modules/.bin ]]; then
     exit 1
 fi
 
+if [[ -d node_modules/raml2html-werk-theme ]]; then
+    echo "Making raml2html-assets"
+    rm -rf raml2html-assets
+    mkdir raml2html-assets
+    cp node_modules/raml2html-werk-theme/dist/assets/* raml2html-assets/
+fi
+
 # Unfortunately bash doesn't have proper functions or scoping...
 function make_label {
     local label="${1%%.md}"
@@ -117,6 +124,7 @@ function extract {
                         cp "resolved/$i" "$i"
                     done
                 )
+
                 for i in *.raml; do
                     HTML_API=${i%%.raml}.html
                     echo "Generating $HTML_API from $i..."
@@ -130,7 +138,8 @@ EOF
                         echo "Warning: relabelling RAML 0.8 as 1.0"
                         perl -pi.bak -e 's/^#%RAML *0\.8/#%RAML 1.0/' "$i"
                     fi
-                    raml2html --theme raml2html-nmos-theme "$i" >> "$HTML_API"
+
+                    raml2html --theme raml2html-werk-theme --input "$i" --output "$HTML_API" --no-bundle-assets --asset-base-path ../../../raml2html-assets
                     [ -e "$i.bak" ] && mv "$i.bak" "$i" # Otherwise next checkout will fail
                 done
                 mkdir "../../$target_dir/APIs"
